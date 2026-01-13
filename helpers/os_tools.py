@@ -9,4 +9,5 @@ def check_root() -> bool:
 # Attempts to elevate privileges using sudo
 def elevate_privileges() -> None:
     if not check_root():
+        print("Elevating privileges with sudo...")
         os.execvp("sudo", ["sudo"] + ["python3"] + os.sys.argv)
