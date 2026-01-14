@@ -1,4 +1,9 @@
 import os
+import logging
+import time
+
+# Sets logged up to INFO level by default
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 # Checks if the current user is root
 def check_root() -> bool:
@@ -9,22 +14,23 @@ def check_root() -> bool:
 # Attempts to elevate privileges using sudo
 def elevate_privileges() -> None:
     if not check_root():
-        print("Elevating privileges with sudo...")
+        logging.info("Elevating privileges with sudo...")
         os.execvp("sudo", ["sudo"] + ["python3"] + os.sys.argv)
     else:
-        print("Running as root...")
+        logging.debug("Running as root...")
 
 # Creates a directory if it does not exist
 def create_directory(path: str) -> None:
     if not os.path.exists(path):
         os.makedirs(path)
-        print(f"Created directory: {path}")
+        logging.debug(f"Created directory: {path}")
     else:
-        print(f"Directory already exists: {path}")
+        logging.debug(f"Directory already exists: {path}")
 
 # Sets executable permissions for a given file
 def set_executable(file_path: str) -> None:
     os.chmod(file_path, os.stat(file_path).st_mode | 0o111)
+    logging.debug(f"Set executable permissions for: {file_path}")
 
 # Creates a symbolic link
 def create_symlink(target: str, link_name: str) -> None:
@@ -32,9 +38,9 @@ def create_symlink(target: str, link_name: str) -> None:
         if os.path.islink(link_name) or os.path.exists(link_name):
             os.remove(link_name)
         os.symlink(target, link_name)
-        print(f"Created symlink: {link_name} -> {target}")
+        logging.debug(f"Created symlink: {link_name} -> {target}")
     except Exception as e:
-        print(f"Failed to create symlink {link_name} -> {target}: {e}")
+        logging.error(f"Failed to create symlink {link_name} -> {target}: {e}")
 
 # Removes a file or directory
 def remove_path(path: str) -> None:
@@ -43,9 +49,9 @@ def remove_path(path: str) -> None:
             os.rmdir(path)
         elif os.path.isfile(path):
             os.remove(path)
-        print(f"Removed: {path}")
+        logging.debug(f"Removed: {path}")
     except Exception as e:
-        print(f"Failed to remove {path}: {e}")
+        logging.error(f"Failed to remove {path}: {e}")
 
 # Checks if a path exists
 def path_exists(path: str) -> bool:
@@ -62,7 +68,10 @@ def get_absolute_path(path: str) -> str:
 # Changes the current working directory
 def change_directory(path: str) -> None:
     os.chdir(path)
+    logging.debug(f"Changed directory to: {path}")
 
 #Gets the current working directory
 def get_current_directory() -> str:
-    return os.getcwd()
+    cwd = os.getcwd()
+    logging.debug(f"Current directory: {cwd}")
+    return cwd
