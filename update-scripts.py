@@ -1,12 +1,20 @@
 #!/usr/bin/python3
 import os
 import subprocess
+import argparse
+
 from helpers.os_tools import *
 from helpers.config_handler import *
 
 # Checks if running as root and elevates if not
 elevate_privileges()
 config = ConfigHandler('/opt/RuneScripts/config.json')
+
+# Argument Parsing
+parser = argparse.ArgumentParser(description='Update RuneScripts scripts from the repository.')
+args = parser.add_argument('--force-rebuild', action='store_true', help='Force rebuild of scripts even if up to date')
+args = parser.add_argument('--force-update', action='store_true', help='Force update of scripts even if up to date')
+parsed_args = parser.parse_args()
 
 current_dir = get_current_directory()
 
@@ -25,14 +33,13 @@ latest_hash = result.stdout.decode('utf-8').split()[0]
 performed_update = False
 
 # If hashes differ, pull latest changes
-if current_hash != latest_hash:
+if current_hash != latest_hash or parsed_args.force_update:
     print('Update available. Pulling latest changes...')
     subprocess.run(['git', '-C', scripts_dir, 'pull'])
-    config.set('current_hash', latest_hash)
     print('Update complete.')
     performed_update = True
 
-if not performed_update:
+if not performed_update and not parsed_args.force_rebuild and not parsed_args.force_update:
     print('No updates available.')
     print('No rebuild flags set. Exiting.')
     change_directory(current_dir)
@@ -49,5 +56,4 @@ for script in os.listdir(scripts_dir):
         create_symlink(script_path, symlink_path)
 
 print('Scripts are up to date and symlinks created.')
-print(f'scripts_dir: {scripts_dir}')
 change_directory(current_dir)
