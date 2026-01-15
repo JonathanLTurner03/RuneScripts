@@ -40,6 +40,19 @@ else:
     logging.debug('No domain provided...')
     domain = input('Enter the domain to expose the service on: ').strip()
 
+# Check if Domain is resolving to another service on the machine (checks Apache configs)
+apache_sites_available = '/etc/apache2/sites-available'
+for filename in os.listdir(apache_sites_available):
+    if filename.endswith('.conf'):
+        with open(os.path.join(apache_sites_available, filename), 'r') as file:
+            config_content = file.read()
+            if f'ServerName {domain}' in config_content:
+                logging.warning(f'The domain {domain} is already configured in Apache site: {filename}')
+                input_choice = input('Do you want to continue anyway? (y/n): ').strip().lower()
+                if input_choice != 'y':
+                    logging.error('Exiting... Domain conflict.')
+                    exit(1)
+
 # Port Setup
 if port:
     logging.info(f'Setting up port: {port}')
@@ -63,6 +76,15 @@ if parsed_args.name:
     service_name = parsed_args.name
 else:
     service_name = input('Enter the name of the service (will be used for filename): ').strip()
+
+# Check apache configs for existing config with same name
+apache_config_path = f'/etc/apache2/sites-available/{service_name}.conf'
+if os.path.exists(apache_config_path):
+    logging.warning(f'An Apache configuration with the name {service_name} already exists.')
+    input_choice = input('Do you want to overwrite it? (y/n): ').strip().lower()
+    if input_choice != 'y':
+        logging.error('Exiting... Configuration name conflict.')
+        exit(1)
 
 # SSL Setup
 use_ssl = parsed_args.ssl
