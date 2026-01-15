@@ -75,3 +75,34 @@ def get_current_directory() -> str:
     cwd = os.getcwd()
     logging.debug(f"Current directory: {cwd}")
     return cwd
+
+def check_port_in_use(port: int) -> bool:
+    import socket
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        result = s.connect_ex(('localhost', port))
+        return result == 0
+
+# Im not gonna lie, this works and im afraid of it so Im not touching it.
+def check_port_in_use(port: int) -> tuple:
+    import socket
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        result = s.connect_ex(('localhost', port))
+        if result == 0:
+            try:
+                import psutil
+                for proc in psutil.process_iter(['pid', 'name', 'connections']):
+                    for conn in proc.info['connections']:
+                        if conn.laddr.port == port:
+                            if proc.info['name'] == "docker-proxy":
+                                import subprocess
+                                docker_ps = subprocess.run(['docker', 'ps', '--format', '{{.ID}} {{.Names}}'], stdout=subprocess.PIPE)
+                                containers = docker_ps.stdout.decode('utf-8').strip().split('\n')
+                                for container in containers:
+                                    container_id, container_name = container.split()
+                                    docker_inspect = subprocess.run(['docker', 'inspect', container_id], stdout=subprocess.PIPE)
+                                    if f'"HostPort": "{port}"' in docker_inspect.stdout.decode('utf-8'):
+                                        return (True, f"Docker container '{container_name}' (ID: {container_id})")
+                            return (True, f"{proc.info['name']} (PID: {proc.info['pid']})")
+            except ImportError:
+                return (True, "Unknown process (psutil not installed)")
+        return (False, None)

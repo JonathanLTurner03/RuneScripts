@@ -1,5 +1,6 @@
 {
     "repo_url": "https://github.com/JonathanLTurner03/RuneScripts.git",
     "current_hash": "4dc0a0ddb3bb32bc08009b347bc1ab9b70720c16",
-    "scripts_dir": "/opt/RuneScripts"
+    "scripts_dir": "/opt/RuneScripts",
+    "admin_email": "JonathanLTurner03@gmail.com"
 }
