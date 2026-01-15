@@ -2,6 +2,7 @@
 if [ "$EUID" -ne 0 ]; then
     echo "Please run as root"
     exit 1
+fi
 
 # Installs necessary dependencies
 apt update
@@ -13,6 +14,11 @@ pip3 install -r /opt/RuneScripts/requirements.txt
 # Makes the main script executable
 chmod +x /opt/RuneScripts/update-scripts.py
 
+# change default config to config.json
+if [ ! -f /opt/RuneScripts/config.json ]; then
+    cp /opt/RuneScripts/default-config.json /opt/RuneScripts/config.json
+fi
+
 # Perform initial script update
 python3 /opt/RuneScripts/update-scripts.py --force-update
 
@@ -20,5 +26,6 @@ python3 /opt/RuneScripts/update-scripts.py --force-update
 if ! grep -q 'export PATH="$PATH:/opt/RuneScripts/bin"' /etc/bash.bashrc; then
     echo 'export PATH="$PATH:/opt/RuneScripts/bin"' >> /etc/bash.bashrc
 fi
+
 echo "Installation complete. Please restart your terminal or run 'source /etc/bash.bashrc' to update your PATH."
 exit 0
