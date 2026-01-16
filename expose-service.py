@@ -123,6 +123,8 @@ if ssl:
     subprocess.run(['a2enmod', 'ssl'])
     subprocess.run(['a2ensite', f'{service_name}.conf'])
     subprocess.run(['systemctl', 'reload', 'apache2'])
+    logging.debug('Requesting SSL certificate from Let\'s Encrypt using Certbot...')
+    logging.debug(f'Command: certbot --apache -d {domain} --non-interactive --agree-tos -m {config.get("admin_email")}')
     subprocess.run(['certbot', '--apache', '-d', domain, '--non-interactive', '--agree-tos', '-m', config.get('admin_email')])
     # Delete comment from lines 18-20 and delete certbot added lines 30-32
     with open(f'/etc/apache2/sites-available/{service_name}.conf', 'r') as config_file:
