@@ -87,9 +87,12 @@ if os.path.exists(apache_config_path):
         exit(1)
 
 # SSL Setup
-use_ssl = parsed_args.ssl
-if use_ssl:
-    logging.info('SSL enabled for the service.')
+use_ssl = ssl
+if use_ssl is not None:
+    if use_ssl:
+        logging.info('SSL will be enabled for the service.')
+    else:
+        logging.info('SSL will not be enabled for the service.')
 else:
     ssl_input = input('Enable SSL for the service? (y/n, default n): ').strip().lower()
     use_ssl = ssl_input == 'y'
@@ -118,7 +121,7 @@ with open(f'/etc/apache2/sites-available/{service_name}.conf', 'w') as config_fi
     config_file.write(apache_config)
 
 # Setup SSL if needed
-if ssl: 
+if use_ssl: 
     logging.info('Enabling SSL for the service...')
     subprocess.run(['a2enmod', 'ssl'])
     subprocess.run(['a2ensite', f'{service_name}.conf'])
