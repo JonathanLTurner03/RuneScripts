@@ -31,7 +31,7 @@ os.system('cls' if os.name == 'nt' else 'clear')
 
 domain = parsed_args.domain
 port = parsed_args.port
-ssl = parsed_args.ssl if parsed_args.ssl is not None else parsed_args.no_ssl
+ssl = parsed_args.ssl if parsed_args.ssl is not None else parsed_args.no_ssl if parsed_args.no_ssl is not None else None
 
 # Domain Setup
 if domain:
