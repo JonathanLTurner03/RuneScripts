@@ -95,7 +95,9 @@ if use_ssl is not None:
         logging.info('SSL will not be enabled for the service.')
 else:
     ssl_input = input('Enable SSL for the service? (y/n, default n): ').strip().lower()
+    logging.debug(f'SSL input: {ssl_input}')
     use_ssl = ssl_input == 'y'
+    logging.debug(f'SSL set to: {use_ssl}')
 
 # Email Config Check
 if config.get('admin_email') is None and use_ssl:
