@@ -50,7 +50,6 @@ performed_update = False
 if current_hash != latest_hash or parsed_args.force_update:
     logging.info('Update available. Pulling latest changes...')
     subprocess.run(['git', '-C', scripts_dir, 'pull'])
-    logging.info('Update complete.')
     performed_update = True
 
 if not performed_update and not parsed_args.force_rebuild and not parsed_args.force_update:
@@ -72,5 +71,32 @@ for script in os.listdir(scripts_dir):
         create_symlink(script_path, symlink_path)
 
 logging.info('Symlinks created and permissions set.')
+
+# Check if Dependencies are installed (python + apt packages)
+logging.info('Checking dependencies...')
+# Install pip packages from requirements.txt
+requirements_file = os.path.join(scripts_dir, 'requirements.txt')
+if os.path.isfile(requirements_file):
+    logging.debug(f'Installing pip packages from {requirements_file}')
+    subprocess.run(['pip3', 'install', '-r', requirements_file, '--upgrade', '--break-system-packages'], stdout=subprocess.DEVNULL)
+else:
+    logging.warning(f'Requirements file not found: {requirements_file}')
+
+# Install apt packages from apt-requirements.txt
+apt_requirements_file = os.path.join(scripts_dir, 'apt-requirements.txt')
+if os.path.isfile(apt_requirements_file):
+    logging.debug(f'Installing apt packages from {apt_requirements_file}')
+    with open(apt_requirements_file, 'r') as file:
+        packages = [line.strip() for line in file if line.strip() and not line.startswith('#')]
+        if packages:
+            logging.debug(f'Packages to install: {packages}')
+            subprocess.run(['apt-get', 'update'], stdout=subprocess.DEVNULL)
+            subprocess.run(['apt-get', 'install', '-y'] + packages, stdout=subprocess.DEVNULL)
+else:
+    logging.warning(f'Apt requirements file not found: {apt_requirements_file}')
+
+logging.info('Dependency check complete.')
+
 logging.debug(f'Returning to original directory: {current_dir}')
 change_directory(current_dir)
+logging.info('Update complete.')
