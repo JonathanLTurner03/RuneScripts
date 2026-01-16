@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # Checks if running as root
 if [ "$EUID" -ne 0 ]; then
     echo "Please run as root"
@@ -21,11 +23,6 @@ fi
 
 # Perform initial script update
 python3 /opt/RuneScripts/update-scripts.py --force-update
-
-# Add bin directory to PATH in .bashrc if not already present
-if ! grep -q 'export PATH="$PATH:/opt/RuneScripts/bin"' /etc/bash.bashrc; then
-    echo 'export PATH="$PATH:/opt/RuneScripts/bin"' >> /etc/bash.bashrc
-fi
 
 echo "Installation complete. Please restart your terminal or run 'source /etc/bash.bashrc' to update your PATH."
 exit 0
