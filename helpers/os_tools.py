@@ -103,7 +103,7 @@ def check_port_in_use(port: int) -> tuple:
                                     if f'"HostPort": "{port}"' in docker_inspect.stdout.decode('utf-8'):
                                         return (True, f"Docker container '{container_name}' (ID: {container_id})")
                             return (True, f"{proc.info['name']} (PID: {proc.info['pid']})")
-            except ImportError:
-                logging.debug(f"import error for psutil, error: {ImportError.msg}")
+            except ImportError as e:
+                logging.debug(f"import error for psutil, error: {e.msg}")
                 return (True, "Unknown process (psutil not installed)")
         return (False, None)
