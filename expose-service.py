@@ -16,8 +16,8 @@ parser = argparse.ArgumentParser(description='Update RuneScripts scripts from th
 args = parser.add_argument('-d', '--domain', type=str, help='Domain to expose the service on')
 args = parser.add_argument('-p', '--port', type=int, help='Port to expose the service on')
 args = parser.add_argument('-n', '--name', type=str, help='Name of the service to expose (will be used for filename)')
-args = parser.add_argument('-S', '--ssl', help='Enable SSL for the exposed service')
-args = parser.add_argument('-s', '--no-ssl', help='Disable SSL for the exposed service')
+args = parser.add_argument('-S', '--ssl', action='store_true', help='Enable SSL for the exposed service')
+args = parser.add_argument('-s', '--no-ssl', action='store_false', help='Disable SSL for the exposed service')
 args = parser.add_argument('-u', '--update-ddns', action='store_true', help='(WIP) Updates DDNS config (cloudflare) and restarts service')
 args = parser.add_argument('-v','--verbose', action='store_true', help='Enable verbose output')
 parsed_args = parser.parse_args()
@@ -31,8 +31,8 @@ os.system('cls' if os.name == 'nt' else 'clear')
 
 domain = parsed_args.domain
 port = parsed_args.port
-ssl = parsed_args.ssl if parsed_args.ssl is not None else parsed_args.no_ssl
-logging.debug(f'Parsed Arguments: domain={domain}, port={port}, ssl={parsed_args.ssl}, no_ssl={parsed_args.no_ssl}')
+ssl = parsed_args.ssl if parsed_args.ssl is not False else parsed_args.no_ssl if parsed_args.no_ssl is not True else None 
+logging.debug(f'Parsed Arguments: domain={domain}, port={port}, ssl={parsed_args.ssl}, no_ssl={parsed_args.no_ssl}, ssl={ssl}')
 
 
 # Domain Setup
